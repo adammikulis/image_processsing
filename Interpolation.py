@@ -27,10 +27,10 @@ class Interpolation():
         self.height = height
         self.color_min = color_min
         self.color_max = color_max
-        self.scale_factor = 3
+        self.scale_factor = 4
         self.tilesize = tilesize
 
-    # Convert from 2D to 1D
+    # Flatten from 2D to 1D
     def convert_1D(self):
         temp_list = []
         temp_list2 = []
@@ -52,7 +52,7 @@ class Interpolation():
                 temp_list.append(self.image[i][j])
         self.image_grayscale = temp_list
 
-    # Convert 1D list into 2D list
+    # Convert 1D list into 2D x,y pixel list
     def convert_2D(self):
         self.image = [self.image[i:i+self.width] for i in range(0, len(self.image), self.width)]
     def convert_2D_gray(self):
@@ -72,7 +72,7 @@ class Interpolation():
         self.width = self.width * 2 - 1
         self.image = new_pixel_list
 
-    # Switchs rows/columns
+    # Switchs rows/columns for performing interpol in other direction
     def transpose(self):
         self.width, self.height = self.height, self.width
         self.image = [list(i) for i in zip(*self.image)]
