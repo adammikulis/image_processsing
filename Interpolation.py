@@ -12,19 +12,11 @@ from pygame.locals import *
 from time import sleep
 import numpy as np
 
-
-#random.seed(17)
 pygame.init()
 
 tilesize = 5
-color_min = 23
-color_max = 37
-
-# testing list
-#ir = [1, 2, 3, 4,
-#      2, 3, 4, 5,
- #    3, 4, 5, 6]
-
+color_min = 20
+color_max = 35
 
 class Interpolation():
     def __init__(self, image, width, height, color_min, color_max, tilesize):
@@ -38,6 +30,7 @@ class Interpolation():
         self.scale_factor = 3
         self.tilesize = tilesize
 
+    # Convert from 2D to 1D
     def convert_1D(self):
         temp_list = []
         temp_list2 = []
@@ -49,7 +42,6 @@ class Interpolation():
                 temp_list.append(self.image[i][j])
         self.image = temp_list
         self.image_grayscale = temp_list2
-
     def convert_1D_gray(self):
         temp_list = []
         for i in range(self.height):
@@ -63,7 +55,6 @@ class Interpolation():
     # Convert 1D list into 2D list
     def convert_2D(self):
         self.image = [self.image[i:i+self.width] for i in range(0, len(self.image), self.width)]
-    # Same but for grayscale image
     def convert_2D_gray(self):
         self.image_grayscale = [self.image_grayscale[i:i+self.width] for i in range(0, len(self.image_grayscale), self.width)]
 
@@ -86,16 +77,6 @@ class Interpolation():
         self.width, self.height = self.height, self.width
         self.image = [list(i) for i in zip(*self.image)]
 
-    ''' not functional at this time
-    def min_max(self):
-        for i in range(len(self.image)):
-            if self.image[i] < self.minimum:
-                self.minimum = self.image[i]
-            if self.image[i] > self.maximum:
-                self.maximum = self.image[i]
-        return self.minimum, self.maximum
-    '''
-
     def convert_to_grayscale(self):
         for i in range(len(self.image)):
             self.image_grayscale.append(self.image[i] * self.scale_factor)
@@ -114,34 +95,15 @@ def import_pixels(filename):
     lines = frame_data.readlines()
     return lines
 
-
-
 frame_data = import_pixels('pixel_data.txt')
-
 frame_array = np.empty([40, 768])
-'''
-for x in range(len(frame_data)-1):
-    frame_buff = frame_data[x]
-    frame_buff = frame_buff.replace(' ','').split(',')
-    frame_buff = np.array(frame_buff)
-    frame_buff = frame_buff.astype(np.float16)
 
-    for i in range(len(frame_data)-1):
-        for j in range(len(frame_buff)):
-            frame_array[i][j] = frame_buff[j]'''
-
-
-
-# Repeat image processing x times
+# Main loop
 while True:
-    # Create array of random elements (total pixels) for testing
-    #rand_ir = []
-    #elements = 768
-    #for i in range(elements):
-    #    rand_ir.append(random.randint(color_min, color_max))
-
-    for x in range(len(frame_data)):
-        frame_buff = frame_data[x]
+    # Repeat image processing for each stored frame in array
+    for stored_frames in range(len(frame_data)):
+        # Load frame data into buffer and remove spaces and commas
+        frame_buff = frame_data[stored_frames]
         frame_buff = frame_buff.replace(' ','').split(',')
         frame_buff = np.array(frame_buff)
         frame_buff = frame_buff.astype(np.float16)
@@ -168,16 +130,12 @@ while True:
         # Initialize display
         surf = pygame.display.set_mode((img3.width*tilesize+100,img1.height*tilesize+img2.height*tilesize+img3.height*tilesize+200))
 
-        # Plot pixels of original image
+        # Plot pixels of original image and scale up to be similar size to processed image
         for i in range(img1.height):
            for j in range(img1.width):
                pygame.draw.rect(surf, (img1.image_grayscale[i][j], 0, 255 - img1.image_grayscale[i][j]), (j*19+25, i*19+25, 19, 19))
 
-        # Plot pixels of interpolated image
-        '''for i in range(img2.height):
-           for j in range(img2.width):
-               pygame.draw.rect(surf, (img2.image_grayscale[i][j], 0, 255 - img2.image_grayscale[i][j]), (j*tilesize+25, i*tilesize + tilesize*img1.height + 50, tilesize, tilesize))'''
-
+        # Plot pixels of image that has been interpolated twice
         for i in range(img3.height):
             for j in range(img3.width):
                 pygame.draw.rect(surf, (img3.image_grayscale[i][j], 0, 255 - img3.image_grayscale[i][j]), (j*tilesize+25, i*tilesize+tilesize*img1.height+tilesize*img2.height+150, tilesize, tilesize))
